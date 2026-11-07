@@ -1,5 +1,15 @@
 # Changelog
 
+## jq compatibility upgrade
+
+- Replaced the partial interpreter with jq compiled to WebAssembly on Cloudflare Workers.
+- Added jq built-ins, regex, formats, user functions, and request-supplied memory-only modules.
+- Added named variables, null/text/stream input modes, and jq output formatting options.
+- Fixed slurp semantics and preserved exact stdout whitespace and newlines.
+- Added results, stdout, and jqVersion while preserving the existing result envelope.
+- Verified 62 native jq reference examples and added cross-request isolation tests.
+- Published the live engine version and option list at `/engine.json`.
+
 ## November 7, 2026 — trust and discovery
 
 - Published operator information: Craftsman Founder LLC, maintained by Lucas Carlson.

@@ -22,11 +22,11 @@ The hosted server implementation is private. This repository is not a self-hosta
 - You want field extraction, array filtering, or JSON transformations without installing jq.
 - The data is suitable for processing by a hosted service.
 
-For large private files that must stay on your device, use a local tool. The hosted
-interpreter supports a subset of jq; modules, some built-in filters, and some output
-formats are unsupported. Try your expression in the [playground](https://thejqapi.com/#api-tester).
-Both REST and MCP use the same `@jq-tools/jq` interpreter. See its
-[compatibility notes](https://github.com/alexxander/jq-tools/tree/main/packages/jq#supported-features).
+REST and MCP run jq compiled to WebAssembly on Cloudflare Workers, including built-in
+filters, regex, formatters, user-defined functions, and request-supplied modules.
+See the [current engine version](https://thejqapi.com/engine.json) and
+[compatibility and options reference](https://thejqapi.com/api#jq-compatibility).
+For large private files that must stay on your device, use a local tool.
 
 ## Add the MCP server
 
@@ -72,6 +72,45 @@ message. Inspect the current argument schema with `tools/list`.
 The tool has no local filesystem access, URL fetching, shell execution, or
 connected-account permissions. JSON is transmitted over HTTPS and processed on
 Cloudflare Workers.
+
+## jq options and modules
+
+The `process` tool and REST endpoint accept the same optional `options` object:
+
+- `args`: named string variables (`--arg`); `argjson`: named JSON variables (`--argjson`).
+- `null_input` (`-n`), `slurp` (`-s`), and `raw_input` (`-R`).
+- `input_stream`: treat a string input as multiple JSON texts; combine with `slurp` to collect them.
+- `raw_output` (`-r`), `join_output` (`-j`), `compact_output` (`-c`), `sort_keys` (`-S`), and `ascii_output` (`-a`).
+- `modules`: relative `.jq` or `.json` filenames mapped to their text contents.
+
+```json
+{
+  "input": [1, 2, 3],
+  "filter": "include \"math\"; map(scale($factor))",
+  "options": {
+    "argjson": { "factor": 4 },
+    "modules": { "math.jq": "def scale($n): . * $n;" }
+  }
+}
+```
+
+Each call has its own in-memory module files and environment. Module files are never
+written to persistent storage, and they cannot read the host filesystem or Worker secrets.
+`input` is always required; use `null` with `null_input`. A normal JSON array is one
+input value, so `slurp: true` wraps it in another array, following jq's `-s` semantics.
+
+Responses retain `result` and `rawResult` for existing clients and add `results` (an
+array containing every emitted jq value), `stdout` (jq output honoring formatting
+options, including whitespace and newlines), and `jqVersion`. `debug` output is
+returned as `stderr` to the caller, without being logged by the application.
+
+JSON value inputs and structured results use JavaScript number precision. For exact
+JSON numeric text, use `input_stream` and read `stdout`.
+
+The engine is tested against 62 native jq reference examples covering the filter
+language, built-ins, formats, regex, variables, modules, and supported options.
+This is a hosted JSON interface: native CLI filesystem, shell, process environment,
+and arbitrary command-line flags are not exposed. Cloudflare resource limits apply.
 
 ## Free limits
 
