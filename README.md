@@ -2,6 +2,9 @@
 
 [Website](https://thejqapi.com/) · [API reference](https://thejqapi.com/api) · [Status](https://thejqapi.com/status) · [Privacy](https://thejqapi.com/privacy)
 
+[Official MCP Registry record](https://registry.modelcontextprotocol.io/v0.1/servers/com.thejqapi%2Fjq-api/versions/latest)
+— published as `com.thejqapi/jq-api` using domain ownership verification.
+
 Run jq filters directly on JSON from AI conversations, API responses, and webhooks.
 Connect to **https://thejqapi.com/mcp** using stateless Streamable HTTP. No local jq
 installation, server package, or Docker container is required for the hosted service.

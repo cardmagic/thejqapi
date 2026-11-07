@@ -10,6 +10,7 @@
 - Published this documentation and examples repository while keeping the hosted
   implementation private.
 - Added external MCP checks and a status page based on actual recorded observations.
+- Published `com.thejqapi/jq-api` in the official MCP Registry with domain ownership verification.
 
 The current server version is published in the live
 [server manifest](https://thejqapi.com/server.json). This changelog starts with this
