@@ -1,5 +1,10 @@
 # Changelog
 
+## Server icon
+
+- Added PNG and SVG icons to the public server manifest and MCP server information.
+- Added matching browser favicons across the website.
+
 ## jq compatibility upgrade
 
 - Replaced the partial interpreter with jq compiled to WebAssembly on Cloudflare Workers.

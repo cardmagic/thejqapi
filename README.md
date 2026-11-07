@@ -50,6 +50,7 @@ Native Cursor and VS Code install buttons are on the website.
 
 The public [server manifest](https://thejqapi.com/server.json) contains the current
 version and endpoint. No personal UUID or credential is included in installation links.
+PNG and SVG icons are included for MCP clients and directories.
 
 ## Tool contract
 
