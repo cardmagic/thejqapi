@@ -1,0 +1,28 @@
+name: MCP availability check
+on:
+  schedule:
+    - cron: '2-59/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - checks/mcp.mjs
+      - .github/workflows/mcp-status.yml
+permissions:
+  contents: read
+concurrency:
+  group: mcp-status
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify the public MCP endpoint
+        env:
+          JQ_MONITOR_TOKEN: ${{ secrets.JQ_MONITOR_TOKEN }}
+          REQUIRE_MONITOR_AUTH: '1'
+        run: node checks/mcp.mjs
