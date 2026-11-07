@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 — 2026-11-07
+
+- Add public HTTPS URL input to REST and MCP processing, with size, redirect, network, and timeout protections.
+- Add JSON file uploads and reusable secret IDs, expiring after 15 minutes, with early deletion.
+- Add MCP `upload` and `delete_upload` tools; uploads and queries share existing daily quotas.
+- Add URL/file input controls to the playground and document storage and privacy boundaries.
+
 ## Server icon
 
 - Added PNG and SVG icons to the public server manifest and MCP server information.

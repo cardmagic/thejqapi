@@ -54,7 +54,7 @@ PNG and SVG icons are included for MCP clients and directories.
 
 ## Tool contract
 
-One tool, **`process`**, accepts JSON values directly:
+**`process`** accepts inline JSON, a public HTTPS URL, or a reusable upload ID:
 
 ```json
 { "input": { "name": "Alice" }, "filter": ".name" }
@@ -70,7 +70,7 @@ The successful structured result includes:
 as text for client compatibility. Processing errors have `isError: true` and an error
 message. Inspect the current argument schema with `tools/list`.
 
-The tool has no local filesystem access, URL fetching, shell execution, or
+The tool has no local filesystem access, shell execution, or
 connected-account permissions. JSON is transmitted over HTTPS and processed on
 Cloudflare Workers.
 
@@ -97,7 +97,7 @@ The `process` tool and REST endpoint accept the same optional `options` object:
 
 Each call has its own in-memory module files and environment. Module files are never
 written to persistent storage, and they cannot read the host filesystem or Worker secrets.
-`input` is always required; use `null` with `null_input`. A normal JSON array is one
+Exactly one of `input`, `url`, or `upload_id` is required; use `input: null` with `null_input`. A normal JSON array is one
 input value, so `slurp: true` wraps it in another array, following jq's `-s` semantics.
 
 Responses retain `result` and `rawResult` for existing clients and add `results` (an
@@ -112,6 +112,55 @@ The engine is tested against 62 native jq reference examples covering the filter
 language, built-ins, formats, regex, variables, modules, and supported options.
 This is a hosted JSON interface: native CLI filesystem, shell, process environment,
 and arbitrary command-line flags are not exposed. Cloudflare resource limits apply.
+
+## URL and upload inputs
+
+`process` / `POST /process` accepts exactly one of `input`, `url`, or `upload_id`,
+alongside `filter` and the existing jq `options`. Documents are limited to **5 MiB**;
+JSON request envelopes are limited to 8 MiB.
+
+```json
+{ "url": "https://registry.npmjs.org/jq-wasm/latest", "filter": ".name" }
+```
+
+Use any public HTTPS JSON URL you control. URL fetching accepts port 443 only, with
+no credentials, private addresses, custom headers, or connected-account access.
+Every redirect is validated; downloads have a 10-second deadline and at most three
+redirects. JSON is expected by default; use `raw_input` for text or `input_stream`
+for a sequence of JSON values. A direct URL query does not persist its document.
+
+Upload a local JSON document over REST without pasting it into an AI conversation:
+
+```sh
+curl https://thejqapi.com/uploads \
+  -H 'Content-Type: application/json' --data-binary @data.json
+# Alternatively: curl https://thejqapi.com/uploads -F file=@data.json
+```
+
+The response contains `upload_id`, `expires_at`, and `size_bytes`. The body above is
+raw JSON, not an `input` wrapper. Reuse the ID with different filters:
+
+```sh
+curl https://thejqapi.com/process \
+  -H 'Content-Type: application/json' \
+  -d '{"upload_id":"YOUR_UPLOAD_ID","filter":".name"}'
+curl -X DELETE https://thejqapi.com/uploads/YOUR_UPLOAD_ID
+```
+
+To fetch once and reuse a URL, `POST /uploads/from-url` with `{"url":"https://..."}`.
+MCP exposes **`upload`** with exactly one of `input` or `url`, **`process`** with
+`upload_id`, and **`delete_upload`** with `upload_id`. A local file must first be
+uploaded over HTTP by the client; the MCP server cannot read a local path.
+Only filter results need to enter the model context when using URL/upload references.
+
+Uploads are private, reusable for **15 minutes**, and can be deleted early. Anyone
+holding the secret ID can query or delete its data: treat it as a credential. There
+is no public listing or raw-download endpoint. Expiration returns HTTP 410, a missing
+or deleted document returns 404, oversize input returns 413, and unavailable storage
+returns 503. MCP returns corresponding structured tool errors.
+
+Upload and processing attempts each consume one call from the existing shared quota.
+Deletion, MCP initialization, and discovery do not consume processing quota.
 
 ## Free limits
 
@@ -157,7 +206,9 @@ history consists of recorded checks, not a contractual uptime guarantee.
 
 ## Data handling
 
-Submitted JSON, filters, and results are not written to application logs or databases.
+Inline and direct URL processing data is not persisted. Explicit uploads are stored privately
+for 15 minutes, with early deletion available. Upload IDs are secrets. Submitted JSON,
+source URLs, filters, and results are kept out of application logs.
 The active quota database retains identifying usage records for the current UTC day,
 then aggregates expired records and removes the identifiers during cleanup. Historical
 totals contain no IP addresses or UUIDs. Hosting-provider logs and backups have separate
