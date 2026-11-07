@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0 — 2026-11-07
+
+- Rename MCP tools `process` to `process_json` and `upload` to `upload_json` for consistent verb/object names. `delete_upload` is unchanged.
+- Refresh MCP tool discovery in existing clients; REST endpoints and request formats are unchanged.
+- Publish the public Glama connector ownership proof.
+
 ## 1.2.0 — 2026-11-07
 
 - Add public HTTPS URL input to REST and MCP processing, with size, redirect, network, and timeout protections.

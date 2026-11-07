@@ -54,7 +54,7 @@ PNG and SVG icons are included for MCP clients and directories.
 
 ## Tool contract
 
-**`process`** accepts inline JSON, a public HTTPS URL, or a reusable upload ID:
+**`process_json`** accepts inline JSON, a public HTTPS URL, or a reusable upload ID:
 
 ```json
 { "input": { "name": "Alice" }, "filter": ".name" }
@@ -76,7 +76,7 @@ Cloudflare Workers.
 
 ## jq options and modules
 
-The `process` tool and REST endpoint accept the same optional `options` object:
+The `process_json` tool and REST endpoint accept the same optional `options` object:
 
 - `args`: named string variables (`--arg`); `argjson`: named JSON variables (`--argjson`).
 - `null_input` (`-n`), `slurp` (`-s`), and `raw_input` (`-R`).
@@ -115,7 +115,7 @@ and arbitrary command-line flags are not exposed. Cloudflare resource limits app
 
 ## URL and upload inputs
 
-`process` / `POST /process` accepts exactly one of `input`, `url`, or `upload_id`,
+`process_json` / `POST /process` accepts exactly one of `input`, `url`, or `upload_id`,
 alongside `filter` and the existing jq `options`. Documents are limited to **5 MiB**;
 JSON request envelopes are limited to 8 MiB.
 
@@ -148,7 +148,7 @@ curl -X DELETE https://thejqapi.com/uploads/YOUR_UPLOAD_ID
 ```
 
 To fetch once and reuse a URL, `POST /uploads/from-url` with `{"url":"https://..."}`.
-MCP exposes **`upload`** with exactly one of `input` or `url`, **`process`** with
+MCP exposes **`upload_json`** with exactly one of `input` or `url`, **`process_json`** with
 `upload_id`, and **`delete_upload`** with `upload_id`. A local file must first be
 uploaded over HTTP by the client; the MCP server cannot read a local path.
 Only filter results need to enter the model context when using URL/upload references.
@@ -191,7 +191,7 @@ node checks/mcp.mjs
 ```
 
 This dependency-free client checks initialization, absence of sessions, `tools/list`,
-and a real `process` call returning `"Alice"`. It sends only the fixed public example.
+and a real `process_json` call returning `"Alice"`. It sends only the fixed public example.
 A manual invocation uses ordinary anonymous quota. You can also copy the raw request
 from the [website verification example](https://thejqapi.com/#service-facts).
 

@@ -60,9 +60,13 @@ const initialized = await rpc(1, 'initialize', {
 assert.equal(initialized.serverInfo.name, 'jq-api')
 await rpc(undefined, 'notifications/initialized', {})
 const listing = await rpc(2, 'tools/list', {})
-assert(listing.tools.some((tool) => tool.name === 'process'))
+// Allow the previous name during a rolling release or rollback of the hosted service.
+const processTool =
+  listing.tools.find((tool) => tool.name === 'process_json') ??
+  listing.tools.find((tool) => tool.name === 'process')
+assert(processTool, 'JSON processing tool is missing')
 const result = await rpc(3, 'tools/call', {
-  name: 'process',
+  name: processTool.name,
   arguments: { input: { name: 'Alice' }, filter: '.name' },
 })
 assert.equal(result.isError, false)
@@ -71,4 +75,4 @@ assert.equal(result.structuredContent.result, 'Alice')
 assert.equal(result.structuredContent.rawResult, '"Alice"')
 assert.equal(typeof result.structuredContent.executionTime, 'number')
 if (token) assert.equal(result._meta?.monitoring, true, 'Dedicated monitoring was not recognized')
-console.log('MCP initialization, discovery, and process example passed.')
+console.log('MCP initialization, discovery, and process_json example passed.')
