@@ -54,6 +54,14 @@ PNG and SVG icons are included for MCP clients and directories.
 
 ## Tool contract
 
+| Tool            | Use it for                                                                          |
+| --------------- | ----------------------------------------------------------------------------------- |
+| `process_json`  | Query inline JSON, a URL, or an upload; `filter: "."` reads the whole document.     |
+| `upload_json`   | Store immutable JSON once for repeated queries over the next 15 minutes.            |
+| `delete_upload` | Remove one upload early, without consuming processing quota.                        |
+| `get_upload`    | Inspect availability, expiration, and size without reading JSON or consuming quota. |
+| `get_quota`     | Read the caller's remaining daily allowance and UTC reset, without consuming quota. |
+
 **`process_json`** accepts inline JSON, a public HTTPS URL, or a reusable upload ID:
 
 ```json
@@ -161,6 +169,33 @@ returns 503. MCP returns corresponding structured tool errors.
 
 Upload and processing attempts each consume one call from the existing shared quota.
 Deletion, MCP initialization, and discovery do not consume processing quota.
+
+### Inspect uploads and quota without consuming calls
+
+MCP `get_upload` takes the secret `upload_id` and returns `available`, `status`
+(`available`, `missing`, or `expired`), `expires_at`, `expires_in_seconds`, and
+`size_bytes`. The REST equivalent is `GET /uploads/{upload_id}`. It reads metadata
+only and does not refresh expiration. A missing/deleted or expired reference returns
+HTTP 200 with `available: false` and `size_bytes: null`; processing that reference
+still returns 404 or 410. To read an upload's contents, use `process_json` with
+`{"upload_id":"YOUR_UPLOAD_ID","filter":"."}`. Uploads are immutable: upload a new
+document to change the JSON, and delete the old reference when finished.
+
+MCP `get_quota` takes no arguments. `GET /quota` is its REST equivalent. Both return
+`success`, `tier` (`anonymous` or `uuid`), `limit`, `used`, `remaining`, and `reset_at`
+(next midnight UTC). They use the same request IP or client-configured UUID bearer
+header as processing; do not put credentials in tool arguments. A quota snapshot
+does not reserve calls, and concurrent calls can change the remaining allowance.
+
+```sh
+curl https://thejqapi.com/quota -H 'Authorization: Bearer YOUR_UUID'
+curl https://thejqapi.com/uploads/YOUR_UPLOAD_ID
+```
+
+These checks do not consume processing quota, create quota records, or count as
+processing analytics. They remain available when the daily processing quota is
+exhausted. Invalid IDs are rejected; unavailable storage returns a structured 503
+error. Neither check returns a document's JSON or the caller's IP/UUID.
 
 ## Free limits
 

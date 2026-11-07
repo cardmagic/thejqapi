@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0 — 2026-11-07
+
+- Add `get_upload` and `GET /uploads/{upload_id}` for upload availability, expiration, and size without reading document contents.
+- Add `get_quota` and `GET /quota` for remaining daily allowance without consuming calls or creating usage records.
+- Clarify all MCP parameters, tool selection, results, failures, capability IDs, and per-request modules.
+
 ## 2.0.0 — 2026-11-07
 
 - Rename MCP tools `process` to `process_json` and `upload` to `upload_json` for consistent verb/object names. `delete_upload` is unchanged.
