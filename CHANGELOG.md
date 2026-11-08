@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.0 — 2026-11-08
+
+- Keep expired paid UUIDs private by default, even after old billing records are deleted; renewal is required before querying again.
+- Add browser-wallet checkout and ready-to-copy private MCP configuration for Codex, Claude Code, Cursor, and VS Code.
+- Explain the incremental paid privacy benefit and Cloudflare, public-payment, billing, and temporary-upload boundaries.
+- Add authenticated admin billing summaries, hashed account labels, expiry, retained revenue, and receipt status without collecting paid query activity.
+- Replace the admin page’s embedded credential with a server secret and signed secure sessions; remove third-party admin scripts.
+
 ## 2.2.0 — 2026-11-08
 
 - Add x402 v2 purchase endpoints and MCP `purchase_access` for a one-time 2 USDC, 30-day UUID access pass. Renewals require a separate purchase after expiration.
