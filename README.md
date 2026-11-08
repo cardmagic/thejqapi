@@ -270,6 +270,8 @@ These public metadata endpoints support CORS, HEAD, caching, and ETag revalidati
 
 An exhausted REST quota returns HTTP **429**, `reset_at`, `Retry-After`, and `Link` headers for pricing/checkout. Its JSON `upgrade` object contains the 2-USDC / 30-day plan, `/pricing`, `/access`, `/access/purchases`, and the MCP `purchase_access` tool. MCP quota errors carry the same structured offer. `get_quota` / `GET /quota` also return the offer when remaining allowance is zero. Do not repeatedly retry an exhausted quota: wait until the UTC reset or purchase access under an explicit spending policy. A 429 never charges a wallet. The actual purchase endpoint returns the standard x402 **402** challenge.
 
+REST clients can upgrade on the **original processing request**: add `X-JQ-Payment: pass` and a saved UUID bearer token to `POST /process`, `POST /uploads`, or `POST /uploads/from-url`. An inactive UUID receives a standard x402 HTTP **402** challenge. Keep the header on the signed retry; the confirmed pass activates before the query or upload runs, with no free-tier quota/source writes. This explicitly purchases **30 days for 2 USDC**, not one query. Active passes are not charged again. HTTP **202** means settlement is pending and processing has not run; inspect the returned purchase ID instead of paying again. The separate purchase endpoints and MCP `purchase_access` remain available.
+
 ## Prepaid private access (x402)
 
 An optional pass costs **2 USDC for 30 days of unlimited jq queries with zero application query logs**. Purchases are live with native USDC on Base mainnet through x402. Each renewal is a separate purchase after expiration. Check `GET /pricing` for current availability. Free access remains available.

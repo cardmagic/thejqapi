@@ -5,6 +5,7 @@
 - Add machine-readable OpenAPI 3.1 and llms.txt / llms-full.txt with actual inputs, quotas, errors, x402 purchase instructions, and privacy boundaries.
 - Add the draft MCP Server Card and AI Catalog discovery formats, with explicit MCP/REST identity and no claim of A2A support.
 - Include structured paid upgrade offers and reset instructions in exhausted REST/MCP quota responses; expose pricing and checkout through Link headers.
+- Support opt-in same-request x402 pass upgrades with X-JQ-Payment: pass, without free-tier tracking or duplicate settlement.
 - Serve discovery without query quota or usage writes, with CORS, HEAD, and ETag support.
 
 ## 2.3.0 — 2026-11-08
