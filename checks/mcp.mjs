@@ -102,4 +102,13 @@ for (const path of [
   } else
     assert(text.includes('Privacy') && text.includes('/pricing'), 'Agent quickstart is incomplete')
 }
-console.log('OpenAPI, MCP Server Card, AI Catalog, and llms.txt discovery passed.')
+const prices = await (
+  await fetch('https://thejqapi.com/pricing', { signal: AbortSignal.timeout(15000) })
+).json()
+assert.equal(prices.price.amount_atomic, '2000000')
+assert.equal(prices.per_query.amount_atomic, '5000')
+assert.equal(prices.per_query.active_passes_charged, false)
+assert.equal(prices.per_query.privacy, 'no_payload_logs_with_payment_receipts')
+console.log(
+  'OpenAPI, MCP Server Card, AI Catalog, llms.txt and pass/query pricing discovery passed.'
+)

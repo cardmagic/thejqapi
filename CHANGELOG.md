@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.5.0 — 2026-11-08
+
+- Add opt-in 0.005-USDC per-query x402 payments on REST process and MCP process_json, with exact amount verification and receipt recovery.
+- Bind each payment to one idempotency UUID and a keyed request fingerprint; limit identical delivery retries to three attempts within 15 minutes, without caching payloads or charging twice.
+- Preserve active pass bypass and zero pass-query records; disclose per-query billing receipts and temporary retry data separately.
+- Show pass/query payment counts and precise fractional USDC in admin; update OpenAPI, agent discovery, quota offers, and documentation.
+
 ## 2.4.0 — 2026-11-08
 
 - Add machine-readable OpenAPI 3.1 and llms.txt / llms-full.txt with actual inputs, quotas, errors, x402 purchase instructions, and privacy boundaries.
