@@ -258,3 +258,20 @@ actual response, and client name. Avoid secrets and customer data.
 
 For private reports, email [contact@thejqapi.com](mailto:contact@thejqapi.com).
 See [SECURITY.md](SECURITY.md) and [CHANGELOG.md](CHANGELOG.md).
+
+## Prepaid private access (x402)
+
+An optional pass costs **2 USDC for 30 days of unlimited jq queries with ultimate privacy: zero application query logs**. Each renewal is a separate purchase after expiration. Check `GET /pricing` for the selected network and `available`; payment acceptance is disabled until configured. Free access remains available.
+
+1. Send `POST /access/purchases` with `{}` and your secret UUID bearer header. Save the returned `purchase_id` and `checkout_url`. An active pass returns status without a new charge.
+2. POST to the checkout URL. An x402-capable wallet client handles the HTTP 402 `PAYMENT-REQUIRED` challenge and retries with `PAYMENT-SIGNATURE` for exactly 2 USDC. Successful settlement returns `PAYMENT-RESPONSE`, `active:true`, and `expires_at`.
+3. Check `GET /access/purchases/{purchase_id}` to recover the receipt or pending status. Retry the same purchase; do not pay again while settlement is pending.
+4. Keep using the UUID for REST and MCP. Persist **`X-JQ-Privacy: required`** in the client configuration: expired/unverifiable access then fails before free-tier tracking.
+
+MCP `purchase_access({})` exposes the same flow. Its optional `purchase_id` resumes a known order. Payment requirements appear in `structuredContent` and text with `isError:true`; the client supplies payment in request `_meta["x402/payment"]`, and receives a receipt in response `_meta["x402/payment-response"]`. Never put wallet keys, UUID credentials, or signatures in tool arguments. A normal MCP client can use an already-paid UUID without wallet support. Purchasing requires an x402-capable wallet/client and an explicit 2 USDC spending policy; some clients default to a $1 ceiling.
+
+`get_quota` / `GET /quota` return `tier:"paid"`, `unlimited:true`, `expires_at`, `privacy:"zero_application_query_logs"`, `auto_renew:false`, and null allowance/count fields. Paid processing and upload creation bypass the shared daily counter. No paid query counts, last-used records, or source analytics are maintained. The 5 MiB document limit, 15-minute upload lifetime, and execution limits still apply.
+
+The application does not retain paid-query inputs, filters, results, URLs, IPs, user agents, timestamps, or query history. Minimal payment/access records and explicitly requested uploads are retained separately. USDC transfers are public and Cloudflare infrastructure policies apply. See [privacy and retention](https://thejqapi.com/privacy) for the precise commitment. This is not a claim of anonymity or zero retention by every provider.
+
+Billing/access records use a keyed hash of the UUID. Orders and EIP-3009 authorizations are deduplicated; pending settlement is reconciled before another payment is permitted. An agent can choose to purchase again under its wallet policy, but the service never initiates renewal.
