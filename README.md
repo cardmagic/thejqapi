@@ -260,6 +260,16 @@ actual response, and client name. Avoid secrets and customer data.
 For private reports, email [contact@thejqapi.com](mailto:contact@thejqapi.com).
 See [SECURITY.md](SECURITY.md) and [CHANGELOG.md](CHANGELOG.md).
 
+## Agent discovery and quota recovery
+
+- [OpenAPI 3.1](https://thejqapi.com/openapi.json): REST request/response schemas, UUID authentication, input options, errors, limits, and the x402 purchase flow.
+- [Agent quickstart](https://thejqapi.com/llms.txt) and [full text](https://thejqapi.com/llms-full.txt): concise operating instructions, privacy boundaries, and payment recovery.
+- [AI catalog](https://thejqapi.com/.well-known/ai-catalog.json) and [MCP Server Card](https://thejqapi.com/mcp/server-card): current draft discovery formats; the card advertises the real Streamable HTTP MCP endpoint. Legacy `/.well-known/mcp.json`, `/.well-known/agent-card.json`, and `/.well-known/agent.json` redirect to that MCP card. This service does not implement the A2A protocol.
+
+These public metadata endpoints support CORS, HEAD, caching, and ETag revalidation without using query quota or storing usage records. Live MCP `tools/list` is authoritative for tool schemas.
+
+An exhausted REST quota returns HTTP **429**, `reset_at`, `Retry-After`, and `Link` headers for pricing/checkout. Its JSON `upgrade` object contains the 2-USDC / 30-day plan, `/pricing`, `/access`, `/access/purchases`, and the MCP `purchase_access` tool. MCP quota errors carry the same structured offer. `get_quota` / `GET /quota` also return the offer when remaining allowance is zero. Do not repeatedly retry an exhausted quota: wait until the UTC reset or purchase access under an explicit spending policy. A 429 never charges a wallet. The actual purchase endpoint returns the standard x402 **402** challenge.
+
 ## Prepaid private access (x402)
 
 An optional pass costs **2 USDC for 30 days of unlimited jq queries with zero application query logs**. Purchases are live with native USDC on Base mainnet through x402. Each renewal is a separate purchase after expiration. Check `GET /pricing` for current availability. Free access remains available.

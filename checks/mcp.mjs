@@ -76,3 +76,30 @@ assert.equal(result.structuredContent.rawResult, '"Alice"')
 assert.equal(typeof result.structuredContent.executionTime, 'number')
 if (token) assert.equal(result._meta?.monitoring, true, 'Dedicated monitoring was not recognized')
 console.log('MCP initialization, discovery, and process_json example passed.')
+
+// Public machine-readable discovery must remain readable without the monitor credential.
+for (const path of [
+  '/openapi.json',
+  '/mcp/server-card',
+  '/.well-known/ai-catalog.json',
+  '/llms.txt',
+]) {
+  const response = await fetch('https://thejqapi.com' + path, {
+    signal: AbortSignal.timeout(15000),
+  })
+  assert.equal(response.status, 200, path + ': public discovery unavailable')
+  const text = await response.text()
+  assert(text.length < 500_000, 'Unexpectedly large discovery document')
+  if (path === '/openapi.json') {
+    const spec = JSON.parse(text)
+    assert.equal(spec.openapi, '3.1.0')
+    assert(spec.paths['/process'].post.responses['429'])
+  } else if (path === '/mcp/server-card') {
+    const card = JSON.parse(text)
+    assert.equal(card.remotes[0].url, 'https://thejqapi.com/mcp')
+  } else if (path === '/.well-known/ai-catalog.json') {
+    assert.equal(JSON.parse(text).entries[0].type, 'application/mcp-server-card+json')
+  } else
+    assert(text.includes('Privacy') && text.includes('/pricing'), 'Agent quickstart is incomplete')
+}
+console.log('OpenAPI, MCP Server Card, AI Catalog, and llms.txt discovery passed.')

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.0 — 2026-11-08
+
+- Add machine-readable OpenAPI 3.1 and llms.txt / llms-full.txt with actual inputs, quotas, errors, x402 purchase instructions, and privacy boundaries.
+- Add the draft MCP Server Card and AI Catalog discovery formats, with explicit MCP/REST identity and no claim of A2A support.
+- Include structured paid upgrade offers and reset instructions in exhausted REST/MCP quota responses; expose pricing and checkout through Link headers.
+- Serve discovery without query quota or usage writes, with CORS, HEAD, and ETag support.
+
 ## 2.3.0 — 2026-11-08
 
 - Keep expired paid UUIDs private by default, even after old billing records are deleted; renewal is required before querying again.
