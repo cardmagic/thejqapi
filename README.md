@@ -261,7 +261,7 @@ See [SECURITY.md](SECURITY.md) and [CHANGELOG.md](CHANGELOG.md).
 
 ## Prepaid private access (x402)
 
-An optional pass costs **2 USDC for 30 days of unlimited jq queries with ultimate privacy: zero application query logs**. Each renewal is a separate purchase after expiration. Check `GET /pricing` for the selected network and `available`; payment acceptance is disabled until configured. Free access remains available.
+An optional pass costs **2 USDC for 30 days of unlimited jq queries with ultimate privacy: zero application query logs**. Purchases are live with native USDC on Base mainnet through x402. Each renewal is a separate purchase after expiration. Check `GET /pricing` for current availability. Free access remains available.
 
 1. Send `POST /access/purchases` with `{}` and your secret UUID bearer header. Save the returned `purchase_id` and `checkout_url`. An active pass returns status without a new charge.
 2. POST to the checkout URL. An x402-capable wallet client handles the HTTP 402 `PAYMENT-REQUIRED` challenge and retries with `PAYMENT-SIGNATURE` for exactly 2 USDC. Successful settlement returns `PAYMENT-RESPONSE`, `active:true`, and `expires_at`.

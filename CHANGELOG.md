@@ -1,8 +1,10 @@
 # Changelog
 
-## 2.2.0 — 2026-11-08 (payment acceptance disabled)
+## 2.2.0 — 2026-11-08
 
 - Add x402 v2 purchase endpoints and MCP `purchase_access` for a one-time 2 USDC, 30-day UUID access pass. Renewals require a separate purchase after expiration.
+- Enable public purchases with native USDC on Base mainnet after successful testnet and mainnet acceptance checks.
+- Recover interrupted settlements using RPC log scans paginated within the public Base RPC block-range limit.
 - Isolate billing records from query usage, with duplicate-payment protection and settlement reconciliation.
 - Paid processing bypasses quota/source analytics; invocation logging and tracing are disabled. `X-JQ-Privacy: required` rejects expired or unverifiable access before free-tier tracking.
 - Extend `get_quota` with paid access status, expiration, and explicit privacy information. Paid query counts are not retained.
