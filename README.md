@@ -206,8 +206,9 @@ error. Neither check returns a document's JSON or the caller's IP/UUID.
 - REST and MCP share the daily quota, which resets at midnight UTC.
 - MCP initialization and discovery do not consume processing quota.
 
-See the [API reference](https://thejqapi.com/api) for headers and errors. Paid plans
-are not currently offered. Contact the operator about higher usage needs.
+See the [API reference](https://thejqapi.com/api) for headers and errors. For unlimited
+queries with zero application query logs, buy the optional
+[2 USDC, 30-day prepaid pass](#prepaid-private-access-x402) on Base mainnet.
 
 ## Try REST
 
